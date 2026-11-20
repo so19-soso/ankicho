@@ -32,7 +32,7 @@
     <button class="btn" id="bStart">スタート</button></div>
 </section>
 
-<section id="study" class="wrap" style="padding:0" hidden>
+<dialog id="study" class="full"><div class="in">
   <div class="bar2"><button class="lk" data-go="home">← 設定に戻る</button><small id="pg"></small></div>
   <div class="prog"><i id="pb"></i></div>
   <div class="scene" id="scene"><div class="fc" id="fc">
@@ -41,9 +41,9 @@
   <button class="btn" id="bFlip">答えを見る</button>
   <div class="btns" id="bJudge" hidden><button class="btn ng" id="bNg">✕ 不正解</button><button class="btn ok" id="bOk">○ 正解</button></div>
   <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解（答えを見たあと左右スワイプも可）</p>
-</section>
+</div></dialog>
 
-<section id="result" class="wrap" style="padding:0" hidden>
+<dialog id="result" class="full"><div class="in">
   <div class="card score"><b id="rOk">0</b> / <span id="rAll"></span><br><small id="rPct"></small></div>
   <div class="tabs"><button id="tOk"></button><button id="tNg"></button></div>
   <div class="card" id="rList"></div>
@@ -53,13 +53,13 @@
   <div class="btns"><button class="btn" id="bASeq">順番どおり</button><button class="btn ghost" id="bARnd">シャッフル</button></div>
   <button class="btn ghost" id="bExp">誤答をCSVで書き出し</button>
   <button class="btn ghost" data-go="home">はじめから（設定に戻る）</button>
-</section>
+</div></dialog>
 
-<section id="list" class="wrap" style="padding:0" hidden>
+<dialog id="list" class="full"><div class="in">
   <div class="bar2"><button class="lk" data-go="home">← 設定に戻る</button><span><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
   <div class="card" id="lBody"></div>
   <button class="btn" data-go="home">完了（設定に戻る）</button>
-</section>
+</div></dialog>
 
 <footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a></footer>
 </div>
@@ -86,7 +86,12 @@ function build(name,text){const secs=[],cards=[];let cur=-1;
     if(cur<0){secs.push('はじめ');cur=0}
     cards.push({q:a,a:(r[1]||'').trim(),m:(r[2]||'').trim(),s:cur})}
   return{name,cards,secs}}
-function show(id){['home','study','result','list'].forEach(x=>$(x).hidden=x!==id);document.body.classList.toggle('full',id!='home');if(id=='home')renderHome();scrollTo(0,0)}
+function show(id){
+  if(id=='home'){['result','study','list'].forEach(x=>$(x).open&&$(x).close());renderHome();return}
+  if(id=='result'){if(!$('result').open)$('result').showModal();$('result').scrollTop=0;return}
+  if($('result').open)$('result').close();
+  if(!$(id).open)$(id).showModal();
+  $(id).scrollTop=0}
 const hist=()=>S.get('hist:'+deck.name,{});
 function renderHome(){
   $('deckInfo').textContent=deck.cards.length?`${deck.name}（${deck.cards.length}問）`:'未読み込み';
@@ -145,11 +150,12 @@ const asc=a=>a.slice().sort((x,y)=>x-y);
 $('bRSeq').onclick=()=>startStudy(asc(run.ng));$('bRRnd').onclick=()=>startStudy(shuf(run.ng));
 $('bASeq').onclick=()=>startStudy(asc(run.ids));$('bARnd').onclick=()=>startStudy(shuf(run.ids));
 $('bExp').onclick=()=>{const rows=[['#誤答 '+new Date().toLocaleDateString('ja-JP')]];run.ng.forEach(i=>{const c=deck.cards[i];rows.push(c.m?[c.q,c.a,c.m]:[c.q,c.a])});download('wrong.csv',toCSV(rows))};
-document.addEventListener('keydown',e=>{if($('study').hidden||$('dlg').open)return;
+document.addEventListener('keydown',e=>{if(!$('study').open||$('result').open||$('dlg').open)return;
   if(e.key==' '||e.key=='Enter'){e.preventDefault();flip()}else if(e.key=='ArrowRight')mark(true);else if(e.key=='ArrowLeft')mark(false)});
 let tx=null;$('scene').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('scene').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>70&&run&&run.fl){e.preventDefault();mark(dx>0)}});
 
+$('result').addEventListener('cancel',e=>e.preventDefault());
 // 設定
 const pal={pink:340,peach:22,lemon:48,mint:150,sky:205,lavender:265};
 function renderSet(){const t=S.get('theme',{p:'lavender',m:'auto'});$('mode').value=t.m;
