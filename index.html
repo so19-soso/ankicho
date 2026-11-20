@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>暗記帳</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#c9b8f5">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<div class="wrap">
+<div class="bar"><h1><img src="icon.svg" width="32" height="32" alt="">暗記帳</h1><button class="ic" id="bSet" aria-label="設定">⚙</button></div>
+
+<section id="home" class="wrap" style="padding:0">
+  <div class="card"><h3>① 読み込む</h3>
+    <div class="drop"><label>📄 CSVを選ぶ<input type="file" id="file" accept=".csv,.txt" hidden></label><div id="deckInfo" style="margin-top:8px;font-size:14px;color:var(--sub)">未読み込み</div></div></div>
+  <div class="card"><h3>② 設定</h3>
+    <div class="lbl">セクション</div><div id="secs"></div>
+    <div><button class="lk" id="selAll">全選択</button><button class="lk" id="selNone">全解除</button></div>
+    <div class="lbl">モード</div>
+    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧（□■）</button></div>
+    <div class="lbl">出題順</div>
+    <div class="seg" id="ord"><button data-o="seq">順番どおり</button><button data-o="rnd">ランダム</button></div>
+    <label class="row"><span>セクション内だけシャッフル</span><input type="checkbox" id="oInSec"></label>
+    <label class="row"><span>問題と答えを入れ替える</span><input type="checkbox" id="oSwap"></label>
+    <label class="row"><span>カードをめくる演出</span><input type="checkbox" id="oFlip"></label>
+    <label class="row"><span>苦手問題だけ出題（<span id="weakN">0</span>問）</span><input type="checkbox" id="oWeak"></label></div>
+  <div class="card"><h3>③ スタート</h3>
+    <button class="btn ghost" id="bResume" hidden style="margin-bottom:8px"></button>
+    <button class="btn" id="bStart">スタート</button></div>
+</section>
+
+<section id="study" class="wrap" style="padding:0" hidden>
+  <div class="bar2"><button class="lk" data-go="home">← 設定に戻る</button><small id="pg"></small></div>
+  <div class="prog"><i id="pb"></i></div>
+  <div class="scene" id="scene"><div class="fc" id="fc">
+    <div class="face"><span class="tag">問題</span><div class="big" id="fq"></div></div>
+    <div class="face b"><span class="tag">答え</span><div class="big" id="fa"></div><small id="fm" style="color:var(--sub)"></small></div></div></div>
+  <button class="btn" id="bFlip">答えを見る</button>
+  <div class="btns" id="bJudge" hidden><button class="btn ng" id="bNg">✕ 不正解</button><button class="btn ok" id="bOk">○ 正解</button></div>
+  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解（答えを見たあと左右スワイプも可）</p>
+</section>
+
+<section id="result" class="wrap" style="padding:0" hidden>
+  <div class="card score"><b id="rOk">0</b> / <span id="rAll"></span><br><small id="rPct"></small></div>
+  <div class="tabs"><button id="tOk"></button><button id="tNg"></button></div>
+  <div class="card" id="rList"></div>
+  <div class="lbl">誤答だけもう一度</div>
+  <div class="btns"><button class="btn" id="bRSeq">順番どおり</button><button class="btn ghost" id="bRRnd">シャッフル</button></div>
+  <div class="lbl">今回の全問をもう一度</div>
+  <div class="btns"><button class="btn" id="bASeq">順番どおり</button><button class="btn ghost" id="bARnd">シャッフル</button></div>
+  <button class="btn ghost" id="bExp">誤答をCSVで書き出し</button>
+  <button class="btn ghost" data-go="home">はじめから（設定に戻る）</button>
+</section>
+
+<section id="list" class="wrap" style="padding:0" hidden>
+  <div class="bar2"><button class="lk" data-go="home">← 設定に戻る</button><span><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
+  <div class="card" id="lBody"></div>
+  <button class="btn" data-go="home">完了（設定に戻る）</button>
+</section>
+
+<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a></footer>
+</div>
+
+<dialog id="dlg">
+  <h2>設定</h2>
+  <div>カラー</div><div class="sw" id="sw"></div>
+  <div>表示モード</div>
+  <select id="mode"><option value="auto">端末に合わせる</option><option value="light">ライト</option><option value="dark">ダーク</option></select>
+  <div style="margin-top:14px"><button class="btn" id="dClose">閉じる</button></div>
+</dialog>
+
+<script src="common.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+let deck={name:'',cards:[],secs:[]},sel=new Set(),run=null,tab='ng';
+let opt=Object.assign({o:'seq',mode:'card',weak:false,inSec:true,swap:false,flip:true},S.get('opt',{}));
+
+function build(name,text){const secs=[],cards=[];let cur=-1;
+  for(const r of parseCSV(text)){const a=(r[0]||'').trim();if(!a&&!(r[1]||'').trim())continue;
+    if(a.startsWith('#')){secs.push(a.slice(1).trim()||'無題');cur=secs.length-1;continue}
+    if(cur<0){secs.push('はじめ');cur=0}
+    cards.push({q:a,a:(r[1]||'').trim(),m:(r[2]||'').trim(),s:cur})}
+  return{name,cards,secs}}
+function show(id){['home','study','result','list'].forEach(x=>$(x).hidden=x!==id);document.body.classList.toggle('full',id!='home');if(id=='home')renderHome();scrollTo(0,0)}
+const hist=()=>S.get('hist:'+deck.name,{});
+function renderHome(){
+  $('deckInfo').textContent=deck.cards.length?`${deck.name}（${deck.cards.length}問）`:'未読み込み';
+  $('secs').innerHTML=deck.secs.map((n,i)=>`<label class="row"><span><input type="checkbox" data-s="${i}" ${sel.has(i)?'checked':''}>${esc(n)}</span><small>${deck.cards.filter(c=>c.s==i).length}問</small></label>`).join('')||'<small>CSVを読み込んでください</small>';
+  document.querySelectorAll('#ord button').forEach(b=>b.classList.toggle('on',b.dataset.o==opt.o));
+  document.querySelectorAll('#md button').forEach(b=>b.classList.toggle('on',b.dataset.m==opt.mode));$('oWeak').checked=opt.weak;$('oInSec').checked=opt.inSec;$('oSwap').checked=opt.swap;$('oFlip').checked=opt.flip;
+  const h=hist();$('weakN').textContent=deck.cards.filter(c=>h[c.q]>0).length;
+  const p=S.get('prog');$('bResume').hidden=!(p&&p.deck==deck.name&&p.pos<p.ids.length);
+  if(!$('bResume').hidden)$('bResume').textContent=`▶ 前回の続きから（${p.pos} / ${p.ids.length}）`}
+function setDeck(d,text){deck=d;sel=new Set(d.secs.keys());S.set('deck',{name:d.name,text});renderHome()}
+function makeIds(){let ids=[];const h=hist();deck.cards.forEach((c,i)=>sel.has(c.s)&&(!opt.weak||h[c.q]>0)&&ids.push(i));
+  if(opt.o=='rnd'){if(opt.inSec){const g={};ids.forEach(i=>(g[deck.cards[i].s]=g[deck.cards[i].s]||[]).push(i));ids=Object.keys(g).map(Number).sort((a,b)=>a-b).flatMap(k=>shuf(g[k]))}else ids=shuf(ids)}
+  return ids}
+
+function startStudy(ids){if(!ids.length)return alert('出題できる問題がありません');
+  run={ids,pos:0,ok:[],ng:[],swap:opt.swap,fl:false};show('study');renderCard()}
+function renderCard(){const c=deck.cards[run.ids[run.pos]],fc=$('fc');
+  run.fl=false;fc.classList.add('noanim');fc.classList.remove('flipped');void fc.offsetWidth;if(opt.flip)fc.classList.remove('noanim');
+  $('fq').textContent=run.swap?c.a:c.q;$('fa').textContent=run.swap?c.q:c.a;$('fm').textContent=c.m;
+  $('pg').textContent=`${run.pos+1} / ${run.ids.length}`;$('pb').style.width=run.pos/run.ids.length*100+'%';btns()}
+function btns(){$('bFlip').hidden=run.fl;$('bJudge').hidden=!run.fl}
+function flip(){if(!run)return;run.fl=!run.fl;$('fc').classList.toggle('flipped',run.fl);btns()}
+function mark(ok){if(!run||!run.fl)return;const id=run.ids[run.pos],q=deck.cards[id].q,h=hist();
+  (ok?run.ok:run.ng).push(id);
+  if(ok){if(h[q]>0){h[q]--;if(!h[q])delete h[q]}}else h[q]=(h[q]||0)+1;
+  S.set('hist:'+deck.name,h);run.pos++;
+  if(run.pos>=run.ids.length)finish();else{S.set('prog',{deck:deck.name,ids:run.ids,pos:run.pos,ok:run.ok,ng:run.ng,swap:run.swap});renderCard()}}
+function finish(){S.set('prog',null);show('result');
+  $('rOk').textContent=run.ok.length;$('rAll').textContent=run.ids.length;
+  $('rPct').textContent=`正答率 ${Math.round(run.ok.length/run.ids.length*100)}%`;
+  tab=run.ng.length?'ng':'ok';renderRes()}
+function renderRes(){$('tOk').textContent=`正答 ${run.ok.length}`;$('tNg').textContent=`誤答 ${run.ng.length}`;
+  $('tOk').classList.toggle('on',tab=='ok');$('tNg').classList.toggle('on',tab=='ng');
+  $('rList').innerHTML=run[tab].map(i=>{const c=deck.cards[i];return `<div class="qrow"><span>${esc(c.q)}</span><span style="color:var(--lk)">${esc(c.a)}</span></div>`}).join('')||'<small>なし</small>';
+  $('bRSeq').disabled=$('bRRnd').disabled=$('bExp').disabled=!run.ng.length}
+
+function renderList(ids){
+  $('lBody').innerHTML=ids.map(i=>{const c=deck.cards[i],sw=opt.swap;return `<div class="qrow"><span>${esc(sw?c.a:c.q)}</span><span><span class="ans" hidden>${esc(sw?c.q:c.a)}</span><button class="box" aria-label="答えを表示">□</button></span></div>`}).join('')||'<small>問題がありません</small>'}
+function setAll(v){document.querySelectorAll('#lBody .qrow').forEach(r=>{r.querySelector('.ans').hidden=!v;r.querySelector('.box').textContent=v?'■':'□'})}
+
+$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();setDeck(build(f.name,t),t);e.target.value=''};
+$('secs').onchange=e=>{const i=+e.target.dataset.s;e.target.checked?sel.add(i):sel.delete(i)};
+$('selAll').onclick=()=>{sel=new Set(deck.secs.keys());renderHome()};$('selNone').onclick=()=>{sel.clear();renderHome()};
+$('ord').onclick=e=>{if(e.target.dataset.o){opt.o=e.target.dataset.o;S.set('opt',opt);renderHome()}};
+[['oWeak','weak'],['oInSec','inSec'],['oSwap','swap'],['oFlip','flip']].forEach(([id,k])=>$(id).onchange=e=>{opt[k]=e.target.checked;S.set('opt',opt)});
+$('bStart').onclick=()=>{const ids=makeIds();if(!ids.length)return alert(opt.weak?'苦手問題がありません':'出題できる問題がありません');
+  if(opt.mode=='list'){show('list');renderList(ids)}else startStudy(ids)};
+$('md').onclick=e=>{if(e.target.dataset.m){opt.mode=e.target.dataset.m;S.set('opt',opt);renderHome()}};
+$('bResume').onclick=()=>{const p=S.get('prog');run=Object.assign({fl:false},p);show('study');renderCard()};
+$('lHide').onclick=()=>setAll(false);$('lShow').onclick=()=>setAll(true);
+$('lBody').onclick=e=>{const b=e.target.closest('.box');if(!b)return;const a=b.previousElementSibling;a.hidden=!a.hidden;b.textContent=a.hidden?'□':'■'};
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+$('bFlip').onclick=flip;$('scene').onclick=flip;$('bOk').onclick=()=>mark(true);$('bNg').onclick=()=>mark(false);
+$('tOk').onclick=()=>{tab='ok';renderRes()};$('tNg').onclick=()=>{tab='ng';renderRes()};
+const asc=a=>a.slice().sort((x,y)=>x-y);
+$('bRSeq').onclick=()=>startStudy(asc(run.ng));$('bRRnd').onclick=()=>startStudy(shuf(run.ng));
+$('bASeq').onclick=()=>startStudy(asc(run.ids));$('bARnd').onclick=()=>startStudy(shuf(run.ids));
+$('bExp').onclick=()=>{const rows=[['#誤答 '+new Date().toLocaleDateString('ja-JP')]];run.ng.forEach(i=>{const c=deck.cards[i];rows.push(c.m?[c.q,c.a,c.m]:[c.q,c.a])});download('wrong.csv',toCSV(rows))};
+document.addEventListener('keydown',e=>{if($('study').hidden||$('dlg').open)return;
+  if(e.key==' '||e.key=='Enter'){e.preventDefault();flip()}else if(e.key=='ArrowRight')mark(true);else if(e.key=='ArrowLeft')mark(false)});
+let tx=null;$('scene').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+$('scene').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>70&&run&&run.fl){e.preventDefault();mark(dx>0)}});
+
+// 設定
+const pal={pink:340,peach:22,lemon:48,mint:150,sky:205,lavender:265};
+function renderSet(){const t=S.get('theme',{p:'lavender',m:'auto'});$('mode').value=t.m;
+  $('sw').innerHTML=Object.entries(pal).map(([k,h])=>`<button style="--c:${h}" data-p="${k}" class="${t.p==k?'on':''}" aria-label="${k}"></button>`).join('')}
+$('bSet').onclick=()=>{renderSet();$('dlg').showModal()};$('dClose').onclick=()=>$('dlg').close();
+$('sw').onclick=e=>{const p=e.target.dataset.p;if(!p)return;const t=S.get('theme',{p:'lavender',m:'auto'});t.p=p;S.set('theme',t);applyTheme();renderSet()};
+$('mode').onchange=e=>{const t=S.get('theme',{p:'lavender',m:'auto'});t.m=e.target.value;S.set('theme',t);applyTheme()};
+
+const saved=S.get('deck');if(saved)deck=build(saved.name,saved.text),sel=new Set(deck.secs.keys());
+renderHome();
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSVの書き方 - 暗記帳</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="common.css">
+</head>
+<body>
+<div class="wrap guide">
+  <div class="bar2"><a class="lk" href="index.html" style="text-decoration:none">← 暗記帳に戻る</a></div>
+  <h2>CSVの書き方</h2>
+  <div class="card"><h3>基本</h3>
+    <p>1行が1問です。列はカンマ区切りで、次の順に書きます。</p>
+    <ul><li>1列目：問題（必須）</li><li>2列目：答え</li><li>3列目：メモ・補足（任意）</li></ul>
+<pre>apple,りんご
+banana,バナナ,果物</pre></div>
+  <div class="card"><h3>セクション</h3>
+    <p>行の先頭を「#」にすると、その行はセクション名になります。次の「#」行までが1つのセクションです。最初の「#」より前にある問題は「はじめ」セクションになります。</p>
+<pre>apple,りんご
+#第1章
+grape,ぶどう
+lemon,レモン
+#第2章
+melon,メロン</pre>
+    <p>この例では「はじめ」「第1章」「第2章」の3セクションができ、セクションごとに選択、順番どおり、シャッフルが選べます。</p></div>
+  <div class="card"><h3>カンマや改行を含めるとき</h3>
+    <p>その項目全体を「"」で囲みます。「"」自体は「""」と2つ重ねます。</p>
+<pre>"Hello, world",こんにちは世界
+"1行目
+2行目",複数行の問題</pre></div>
+  <div class="card"><h3>注意</h3>
+    <ul><li>文字コードはUTF-8にしてください（Excelの「CSV UTF-8」形式で保存）。</li>
+    <li>問題の文字が「#」で始まるとセクション名として扱われます。</li>
+    <li>空行は無視されます。</li></ul></div>
+  <div class="card"><h3>便利な使い方</h3>
+    <ul><li>結果画面の「誤答をCSVで書き出し」で、間違えた問題だけの暗記帳を作れます。</li>
+    <li>CSVを手で書かなくても、<a href="editor.html" style="color:var(--lk)">CSV作成ツール</a>で入力してダウンロードできます。</li></ul></div>
+</div>
+<script src="common.js"></script>
+</body>
+</html>
