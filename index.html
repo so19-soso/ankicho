@@ -14,33 +14,33 @@
 <div class="bar"><h1><img src="icon.svg" width="32" height="32" alt="">暗記帳</h1><button class="ic" id="bSet" aria-label="設定">⚙</button></div>
 
 <section id="home" class="wrap" style="padding:0">
-  <div class="card"><h3>① 読み込む</h3>
+  <div class="card"><h3>読み込む</h3>
     <div class="drop"><label>📄 CSVを選ぶ<input type="file" id="file" accept=".csv,.txt" hidden></label><div id="deckInfo" style="margin-top:8px;font-size:14px;color:var(--sub)">未読み込み</div></div></div>
-  <div class="card"><h3>② 設定</h3>
+  <div class="card"><h3>設定</h3>
     <div class="lbl">セクション</div><div id="secs"></div>
     <div><button class="lk" id="selAll">全選択</button><button class="lk" id="selNone">全解除</button></div>
     <div class="lbl">モード</div>
-    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧（□■）</button></div>
+    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧</button></div>
     <div class="lbl">出題順</div>
     <div class="seg" id="ord"><button data-o="seq">順番どおり</button><button data-o="rnd">ランダム</button></div>
-    <label class="row"><span>セクション内だけシャッフル</span><input type="checkbox" id="oInSec"></label>
+    <label class="row"><span>セクション内でシャッフル</span><input type="checkbox" id="oInSec"></label>
     <label class="row"><span>問題と答えを入れ替える</span><input type="checkbox" id="oSwap"></label>
     <label class="row"><span>カードをめくる演出</span><input type="checkbox" id="oFlip"></label>
     <label class="row"><span>苦手問題だけ出題（<span id="weakN">0</span>問）</span><input type="checkbox" id="oWeak"></label></div>
-  <div class="card"><h3>③ スタート</h3>
+  <div class="card"><h3>スタート</h3>
     <button class="btn ghost" id="bResume" hidden style="margin-bottom:8px"></button>
     <button class="btn" id="bStart">スタート</button></div>
 </section>
 
 <dialog id="study" class="full"><div class="in">
-  <div class="bar2"><button class="lk" data-go="home">← 設定に戻る</button><small id="pg"></small></div>
+  <div class="bar2"><button class="lk" data-go="home">← 設定</button><small id="pg"></small></div>
   <div class="prog"><i id="pb"></i></div>
   <div class="scene" id="scene"><div class="fc" id="fc">
     <div class="face"><span class="tag">問題</span><div class="big" id="fq"></div></div>
     <div class="face b"><span class="tag">答え</span><div class="big" id="fa"></div><small id="fm" style="color:var(--sub)"></small></div></div></div>
   <button class="btn" id="bFlip">答えを見る</button>
   <div class="btns" id="bJudge" hidden><button class="btn ng" id="bNg">✕ 不正解</button><button class="btn ok" id="bOk">○ 正解</button></div>
-  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解（答えを見たあと左右スワイプも可）</p>
+  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解</p>
 </div></dialog>
 
 <dialog id="result" class="full"><div class="in">
@@ -56,12 +56,12 @@
 </div></dialog>
 
 <dialog id="list" class="full"><div class="in">
-  <div class="bar2"><button class="lk" data-go="home">← 設定に戻る</button><span><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
+  <div class="bar2"><button class="lk" data-go="home">← 設定</button><span><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
   <div class="card" id="lBody"></div>
-  <button class="btn" data-go="home">完了（設定に戻る）</button>
+  <button class="btn" data-go="home">終了</button>
 </div></dialog>
 
-<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a></footer>
+<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a><br>Prodeced by Claude AI and Soso | Powerd by GitHub</footer>
 </div>
 
 <dialog id="dlg">

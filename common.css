@@ -64,3 +64,6 @@ dialog.full[open]{animation:in .3s ease}
 .in{width:100%;max-width:720px;min-height:100%;margin:0 auto;padding:12px 16px 20px;display:flex;flex-direction:column;gap:12px}
 #study .scene{flex:1;height:auto;min-height:260px}
 dialog.full .big{font-size:clamp(26px,6vw,40px)}
+[hidden]{display:none!important}
+.scene{position:relative}
+.fc{position:absolute;inset:0;width:auto;height:auto}
