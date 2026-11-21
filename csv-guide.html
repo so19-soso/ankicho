@@ -30,6 +30,14 @@ melon,メロン</pre>
 <pre>"Hello, world",こんにちは世界
 "1行目
 2行目",複数行の問題</pre></div>
+  <div class="card"><h3>文字の装飾</h3>
+    <p>問題・答え・メモの中で、次の書き方ができます。</p>
+<pre>明日の**テンキ**を調べる,天気 　← 太字
+今日は*_クモリ_*だった,曇り 　　← 下線
+***_大切_***な言葉,重要 　　　　← 太字＋下線</pre></div>
+  <div class="card"><h3>配布CSV（サイト管理者向け）</h3>
+    <p>リポジトリの <code>csv/</code> フォルダにCSVを置き、<code>csv/list.json</code> に1行追加すると、☰メニューの「配布CSV」から開けます。</p>
+<pre>[{"name":"漢字（書き取り）","file":"kanji.csv"}]</pre></div>
   <div class="card"><h3>注意</h3>
     <ul><li>文字コードはUTF-8にしてください（Excelの「CSV UTF-8」形式で保存）。</li>
     <li>問題の文字が「#」で始まるとセクション名として扱われます。</li>

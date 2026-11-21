@@ -11,36 +11,45 @@
 </head>
 <body>
 <div class="wrap">
-<div class="bar"><h1><img src="icon.svg" width="32" height="32" alt="">暗記帳</h1><button class="ic" id="bSet" aria-label="設定">⚙</button></div>
+<div class="bar"><h1><img src="icon.svg" width="32" height="32" alt="">暗記帳</h1><span><button class="ic" id="bMenu" aria-label="保存データ">☰</button> <button class="ic" id="bSet" aria-label="設定">⚙</button></span></div>
 
 <section id="home" class="wrap" style="padding:0">
-  <div class="card"><h3>読み込む</h3>
+  <div class="card"><h3>① 読み込む</h3>
     <div class="drop"><label>📄 CSVを選ぶ<input type="file" id="file" accept=".csv,.txt" hidden></label><div id="deckInfo" style="margin-top:8px;font-size:14px;color:var(--sub)">未読み込み</div></div></div>
-  <div class="card"><h3>設定</h3>
+  <div class="card"><h3>② 設定</h3>
     <div class="lbl">セクション</div><div id="secs"></div>
     <div><button class="lk" id="selAll">全選択</button><button class="lk" id="selNone">全解除</button></div>
     <div class="lbl">モード</div>
-    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧</button></div>
+    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧（□■）</button></div>
     <div class="lbl">出題順</div>
     <div class="seg" id="ord"><button data-o="seq">順番どおり</button><button data-o="rnd">ランダム</button></div>
-    <label class="row"><span>セクション内でシャッフル</span><input type="checkbox" id="oInSec"></label>
-    <label class="row"><span>問題と答えを入れ替える</span><input type="checkbox" id="oSwap"></label>
-    <label class="row"><span>カードをめくる演出</span><input type="checkbox" id="oFlip"></label>
-    <label class="row"><span>苦手問題だけ出題（<span id="weakN">0</span>問）</span><input type="checkbox" id="oWeak"></label></div>
-  <div class="card"><h3>スタート</h3>
+    <label class="row rnd"><span>セクション内だけシャッフル</span><input type="checkbox" class="tg" id="oInSec"></label>
+    <label class="row"><span>問題と答えを入れ替える</span><input type="checkbox" class="tg" id="oSwap"></label>
+    <label class="row cardonly"><span>カードをめくる演出</span><input type="checkbox" class="tg" id="oFlip"></label>
+    <label class="row"><span>振動（めくる／正誤／答え表示）</span><input type="checkbox" class="tg" id="oVib"></label>
+    <div class="row rnd"><span>出題数（0で全問）</span><span class="cnt"><button id="nM" aria-label="減らす">−</button><input type="number" id="oN" min="0" inputmode="numeric"><button id="nP" aria-label="増やす">＋</button></span></div>
+    <label class="row"><span>苦手問題だけ出題（<span id="weakN">0</span>問）</span><input type="checkbox" class="tg" id="oWeak"></label>
+    <div class="lbl cardonly">回答欄（自分の答えを書く。自動判定はしません）</div>
+    <div class="seg cardonly" id="im"><button data-i="off">なし</button><button data-i="key">キーボード</button><button data-i="pen">手書き</button></div>
+    <div class="lbl">出題する重要度（★）</div><div class="seg" id="stf"></div></div>
+  <div class="card"><h3>③ スタート</h3>
     <button class="btn ghost" id="bResume" hidden style="margin-bottom:8px"></button>
     <button class="btn" id="bStart">スタート</button></div>
 </section>
 
 <dialog id="study" class="full"><div class="in">
-  <div class="bar2"><button class="lk" data-go="home">← 設定</button><small id="pg"></small></div>
+  <div class="bar2"><button class="lk" data-go="home">← 設定</button><span><button class="lk" id="bUndo">↩ 1つ戻す</button><button class="lk" id="bStop">中断</button><small id="pg"></small></span></div>
   <div class="prog"><i id="pb"></i></div>
   <div class="scene" id="scene"><div class="fc" id="fc">
-    <div class="face"><span class="tag">問題</span><div class="big" id="fq"></div></div>
+    <div class="face"><span class="tag">問題</span><div class="big" id="fq"></div><small id="fh" style="color:var(--sub)"></small></div>
     <div class="face b"><span class="tag">答え</span><div class="big" id="fa"></div><small id="fm" style="color:var(--sub)"></small></div></div></div>
+  <div id="stars" class="stars"></div>
+  <div id="inp" hidden><input type="text" id="ans" placeholder="自分の回答（任意）" hidden>
+    <div id="penw" hidden><canvas id="pen" style="width:100%;height:140px;border:1px solid var(--ln);border-radius:12px;background:var(--sf);touch-action:none;display:block"></canvas><button class="lk" id="penClr">書き直す</button></div></div>
   <button class="btn" id="bFlip">答えを見る</button>
+  <button class="lk" id="bHint" hidden>💡 ヒントを見る</button>
   <div class="btns" id="bJudge" hidden><button class="btn ng" id="bNg">✕ 不正解</button><button class="btn ok" id="bOk">○ 正解</button></div>
-  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解</p>
+  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解（答えを見たあと左右スワイプも可）</p>
 </div></dialog>
 
 <dialog id="result" class="full"><div class="in">
@@ -56,14 +65,26 @@
 </div></dialog>
 
 <dialog id="list" class="full"><div class="in">
-  <div class="bar2"><button class="lk" data-go="home">← 設定</button><span><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
-  <div class="card" id="lBody"></div>
-  <button class="btn" data-go="home">終了</button>
+  <div class="bar2"><button class="lk" data-go="home">← 設定</button><span><button class="lk" id="lRed">赤シート OFF</button><button class="lk" id="lSwap">全部入れ替え</button><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
+  <div id="lWrap" style="position:relative"><div class="card" id="lBody"></div><div id="sheet" hidden></div><button id="sh" hidden aria-label="赤シートを動かす">⇕</button></div>
+  <button class="btn" data-go="home">完了（設定に戻る）</button>
 </div></dialog>
 
-<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a><br>Prodeced by Claude AI and Soso | Powerd by GitHub</footer>
+<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a></footer>
 </div>
 
+<dialog id="menu"><h2>保存データ</h2>
+  <div class="lbl">★ お気に入りCSV</div><div id="mFav"></div>
+  <div class="lbl">履歴（最近10件）</div><div id="mRec"></div>
+  <div class="lbl">後でやる（中断して保存）</div><div id="mSav"></div>
+  <div class="lbl">配布CSV（csv/フォルダ）</div><div id="mDist"></div>
+  <div class="lbl">データ保護</div><div class="btns"><button class="btn ghost" id="bkOut">バックアップ書き出し</button><label class="btn ghost">復元<input type="file" id="bkIn" accept=".json" hidden></label></div>
+  <div style="margin-top:12px"><button class="btn" id="mClose">閉じる</button></div></dialog>
+<dialog id="cfm"><h2>中断しますか？</h2>
+  <p style="font-size:14px">ここまでの結果を表示します。残りは名前を付けて「後でやる」に保存もできます。</p>
+  <input type="text" id="svName" placeholder="保存名（例：同音①の続き）">
+  <div class="btns" style="margin-top:10px"><button class="btn ghost" id="cSave">残りを保存</button><button class="btn" id="cStop">中断して結果へ</button></div>
+  <button class="lk" id="cBack" style="width:100%;margin-top:6px">続ける</button></dialog>
 <dialog id="dlg">
   <h2>設定</h2>
   <div>カラー</div><div class="sw" id="sw"></div>
@@ -76,9 +97,11 @@
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=t=>esc(t).replace(/\*_(.+?)_\*/g,'<u>$1</u>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const vib=p=>{if(opt.vib)try{navigator.vibrate(p)}catch(e){}};
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 let deck={name:'',cards:[],secs:[]},sel=new Set(),run=null,tab='ng';
-let opt=Object.assign({o:'seq',mode:'card',weak:false,inSec:true,swap:false,flip:true},S.get('opt',{}));
+let opt=Object.assign({o:'seq',mode:'card',weak:false,inSec:true,swap:false,flip:true,cnt:10,vib:true,input:'off',stars:[0,1,2,3,4,5]},S.get('opt',{}));
 
 function build(name,text){const secs=[],cards=[];let cur=-1;
   for(const r of parseCSV(text)){const a=(r[0]||'').trim();if(!a&&!(r[1]||'').trim())continue;
@@ -93,56 +116,64 @@ function show(id){
   if(!$(id).open)$(id).showModal();
   $(id).scrollTop=0}
 const hist=()=>S.get('hist:'+deck.name,{});
+const stars=()=>S.get('star:'+deck.name,{});
 function renderHome(){
   $('deckInfo').textContent=deck.cards.length?`${deck.name}（${deck.cards.length}問）`:'未読み込み';
   $('secs').innerHTML=deck.secs.map((n,i)=>`<label class="row"><span><input type="checkbox" data-s="${i}" ${sel.has(i)?'checked':''}>${esc(n)}</span><small>${deck.cards.filter(c=>c.s==i).length}問</small></label>`).join('')||'<small>CSVを読み込んでください</small>';
   document.querySelectorAll('#ord button').forEach(b=>b.classList.toggle('on',b.dataset.o==opt.o));
-  document.querySelectorAll('#md button').forEach(b=>b.classList.toggle('on',b.dataset.m==opt.mode));$('oWeak').checked=opt.weak;$('oInSec').checked=opt.inSec;$('oSwap').checked=opt.swap;$('oFlip').checked=opt.flip;
+  document.querySelectorAll('#md button').forEach(b=>b.classList.toggle('on',b.dataset.m==opt.mode));$('oWeak').checked=opt.weak;$('oInSec').checked=opt.inSec;$('oVib').checked=opt.vib;$('oN').value=opt.cnt;document.querySelectorAll('.cardonly').forEach(e=>e.hidden=opt.mode=='list');document.querySelectorAll('.rnd').forEach(e=>e.hidden=opt.o!='rnd');
+  document.querySelectorAll('#im button').forEach(b=>b.classList.toggle('on',b.dataset.i==opt.input));
+  $('stf').innerHTML=[0,1,2,3,4,5].map(n=>`<button data-s="${n}" class="${opt.stars.includes(n)?'on':''}">${n?'★'+n:'未'}</button>`).join('');$('oSwap').checked=opt.swap;$('oFlip').checked=opt.flip;
   const h=hist();$('weakN').textContent=deck.cards.filter(c=>h[c.q]>0).length;
   const p=S.get('prog');$('bResume').hidden=!(p&&p.deck==deck.name&&p.pos<p.ids.length);
   if(!$('bResume').hidden)$('bResume').textContent=`▶ 前回の続きから（${p.pos} / ${p.ids.length}）`}
-function setDeck(d,text){deck=d;sel=new Set(d.secs.keys());S.set('deck',{name:d.name,text});renderHome()}
-function makeIds(){let ids=[];const h=hist();deck.cards.forEach((c,i)=>sel.has(c.s)&&(!opt.weak||h[c.q]>0)&&ids.push(i));
-  if(opt.o=='rnd'){if(opt.inSec){const g={};ids.forEach(i=>(g[deck.cards[i].s]=g[deck.cards[i].s]||[]).push(i));ids=Object.keys(g).map(Number).sort((a,b)=>a-b).flatMap(k=>shuf(g[k]))}else ids=shuf(ids)}
+function setDeck(d,text){deck=d;sel=new Set(d.secs.keys());S.set('deck',{name:d.name,text});addLib(d.name,text);renderHome()}
+function eligible(){const h=hist(),st=stars(),ids=[];deck.cards.forEach((c,i)=>sel.has(c.s)&&(!opt.weak||h[c.q]>0)&&opt.stars.includes(st[c.q]||0)&&ids.push(i));return ids}
+function makeIds(){let ids=eligible();
+  if(opt.o=='rnd'){if(opt.cnt>0&&ids.length>opt.cnt)ids=shuf(ids).slice(0,opt.cnt);
+    if(opt.inSec){const g={};ids.forEach(i=>(g[deck.cards[i].s]=g[deck.cards[i].s]||[]).push(i));ids=Object.keys(g).map(Number).sort((a,b)=>a-b).flatMap(k=>shuf(g[k]))}else ids=shuf(ids)}
   return ids}
 
 function startStudy(ids){if(!ids.length)return alert('出題できる問題がありません');
-  run={ids,pos:0,ok:[],ng:[],swap:opt.swap,fl:false};show('study');renderCard()}
+  run={ids,pos:0,ok:[],ng:[],swap:opt.swap,fl:false,log:[],t0:Date.now()};show('study');renderCard()}
 function renderCard(){const c=deck.cards[run.ids[run.pos]],fc=$('fc');
   run.fl=false;fc.classList.add('noanim');fc.classList.remove('flipped');void fc.offsetWidth;if(opt.flip)fc.classList.remove('noanim');
-  $('fq').textContent=run.swap?c.a:c.q;$('fa').textContent=run.swap?c.q:c.a;$('fm').textContent=c.m;
-  $('pg').textContent=`${run.pos+1} / ${run.ids.length}`;$('pb').style.width=run.pos/run.ids.length*100+'%';btns()}
-function btns(){$('bFlip').hidden=run.fl;$('bJudge').hidden=!run.fl}
-function flip(){if(!run)return;run.fl=!run.fl;$('fc').classList.toggle('flipped',run.fl);btns()}
+  $('fq').innerHTML=fmt(run.swap?c.a:c.q);$('fa').innerHTML=fmt(run.swap?c.q:c.a);$('fm').innerHTML=fmt(c.m);$('fh').textContent='';
+  $('pg').textContent=`${run.pos+1} / ${run.ids.length}`;$('pb').style.width=run.pos/run.ids.length*100+'%';renderStars();$('inp').hidden=opt.input=='off';$('ans').hidden=opt.input!='key';$('penw').hidden=opt.input!='pen';$('ans').value='';if(opt.input=='pen')penSize();btns()}
+function btns(){$('bHint').hidden=run.fl||!deck.cards[run.ids[run.pos]].m;$('bFlip').hidden=run.fl;$('bJudge').hidden=!run.fl}
+function flip(){if(!run)return;run.fl=!run.fl;$('fc').classList.toggle('flipped',run.fl);vib(12);btns()}
 function mark(ok){if(!run||!run.fl)return;const id=run.ids[run.pos],q=deck.cards[id].q,h=hist();
-  (ok?run.ok:run.ng).push(id);
+  (ok?run.ok:run.ng).push(id);(run.log=run.log||[]).push({id,ok,p:h[q]||0});vib(ok?25:[30,50,30]);
   if(ok){if(h[q]>0){h[q]--;if(!h[q])delete h[q]}}else h[q]=(h[q]||0)+1;
   S.set('hist:'+deck.name,h);run.pos++;
   if(run.pos>=run.ids.length)finish();else{S.set('prog',{deck:deck.name,ids:run.ids,pos:run.pos,ok:run.ok,ng:run.ng,swap:run.swap});renderCard()}}
 function finish(){S.set('prog',null);show('result');
   $('rOk').textContent=run.ok.length;$('rAll').textContent=run.ids.length;
-  $('rPct').textContent=`正答率 ${Math.round(run.ok.length/run.ids.length*100)}%`;
+  const sec=Math.round((Date.now()-(run.t0||Date.now()))/1000);$('rPct').textContent=`正答率 ${Math.round(run.ok.length/run.ids.length*100)}% ／ 所要 ${sec/60|0}分${sec%60}秒（1問平均 ${(sec/run.ids.length).toFixed(1)}秒）`;
   tab=run.ng.length?'ng':'ok';renderRes()}
 function renderRes(){$('tOk').textContent=`正答 ${run.ok.length}`;$('tNg').textContent=`誤答 ${run.ng.length}`;
   $('tOk').classList.toggle('on',tab=='ok');$('tNg').classList.toggle('on',tab=='ng');
-  $('rList').innerHTML=run[tab].map(i=>{const c=deck.cards[i];return `<div class="qrow"><span>${esc(c.q)}</span><span style="color:var(--lk)">${esc(c.a)}</span></div>`}).join('')||'<small>なし</small>';
+  $('rList').innerHTML=run[tab].map(i=>{const c=deck.cards[i];return `<div class="qrow"><span>${fmt(c.q)}</span><span style="color:var(--lk)">${fmt(c.a)}</span></div>`}).join('')||'<small>なし</small>';
   $('bRSeq').disabled=$('bRRnd').disabled=$('bExp').disabled=!run.ng.length}
 
-function renderList(ids){
-  $('lBody').innerHTML=ids.map(i=>{const c=deck.cards[i],sw=opt.swap;return `<div class="qrow"><span>${esc(sw?c.a:c.q)}</span><span><span class="ans" hidden>${esc(sw?c.q:c.a)}</span><button class="box" aria-label="答えを表示">□</button></span></div>`}).join('')||'<small>問題がありません</small>'}
-function setAll(v){document.querySelectorAll('#lBody .qrow').forEach(r=>{r.querySelector('.ans').hidden=!v;r.querySelector('.box').textContent=v?'■':'□'})}
+let lIds=[],lAll=[],lOpen=new Set(),red=false;
+function renderList(){const st=stars();$('lBody').classList.toggle('redmode',red);$('lBody').innerHTML=lIds.map((i,k)=>{const c=deck.cards[i],w=opt.swap,n=st[c.q]||0,o=red||lOpen.has(i);return `<div class="qrow" data-id="${i}"><div class="qa"><div>${n?'<small>'+'★'.repeat(n)+' </small>':''}${fmt(w?c.a:c.q)}</div><div class="ans"${o?'':' hidden'}>${fmt(w?c.q:c.a)}</div></div><div class="ctl"><button class="sw1" data-i="${k}" aria-label="別の問題に入れ替え">↻</button><button class="box" aria-label="答えを表示">${o?'■':'□'}</button></div></div>`}).join('')||'<small>問題がありません</small>';$('sheet').hidden=$('sh').hidden=!red}
+function swapOne(k){const p=lAll.filter(x=>!lIds.includes(x));if(!p.length)return alert('入れ替えられる問題がありません');lOpen.delete(lIds[k]);lIds[k]=p[Math.random()*p.length|0];renderList()}
+function swapAll(){const n=lIds.length;let p=shuf(lAll.filter(x=>!lIds.includes(x))).slice(0,n);if(p.length<n)p=p.concat(shuf(lIds).slice(0,n-p.length));lIds=p;lOpen.clear();renderList()}
+function setAll(v){lOpen=v?new Set(lIds):new Set();renderList();vib(12)}
 
 $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();setDeck(build(f.name,t),t);e.target.value=''};
 $('secs').onchange=e=>{const i=+e.target.dataset.s;e.target.checked?sel.add(i):sel.delete(i)};
 $('selAll').onclick=()=>{sel=new Set(deck.secs.keys());renderHome()};$('selNone').onclick=()=>{sel.clear();renderHome()};
 $('ord').onclick=e=>{if(e.target.dataset.o){opt.o=e.target.dataset.o;S.set('opt',opt);renderHome()}};
-[['oWeak','weak'],['oInSec','inSec'],['oSwap','swap'],['oFlip','flip']].forEach(([id,k])=>$(id).onchange=e=>{opt[k]=e.target.checked;S.set('opt',opt)});
+[['oVib','vib'],['oWeak','weak'],['oInSec','inSec'],['oSwap','swap'],['oFlip','flip']].forEach(([id,k])=>$(id).onchange=e=>{opt[k]=e.target.checked;S.set('opt',opt)});
 $('bStart').onclick=()=>{const ids=makeIds();if(!ids.length)return alert(opt.weak?'苦手問題がありません':'出題できる問題がありません');
-  if(opt.mode=='list'){show('list');renderList(ids)}else startStudy(ids)};
+  if(opt.mode=='list'){lAll=eligible();lIds=ids;lOpen=new Set();red=false;$('lRed').textContent='赤シート OFF';show('list');renderList()}else startStudy(ids)};
 $('md').onclick=e=>{if(e.target.dataset.m){opt.mode=e.target.dataset.m;S.set('opt',opt);renderHome()}};
-$('bResume').onclick=()=>{const p=S.get('prog');run=Object.assign({fl:false},p);show('study');renderCard()};
+$('bResume').onclick=()=>{const p=S.get('prog');run=Object.assign({fl:false,log:[],t0:Date.now()},p);show('study');renderCard()};
 $('lHide').onclick=()=>setAll(false);$('lShow').onclick=()=>setAll(true);
-$('lBody').onclick=e=>{const b=e.target.closest('.box');if(!b)return;const a=b.previousElementSibling;a.hidden=!a.hidden;b.textContent=a.hidden?'□':'■'};
+$('lBody').onclick=e=>{const w=e.target.closest('.sw1');if(w)return swapOne(+w.dataset.i);const b=e.target.closest('.box');if(!b||red)return;const r=b.closest('.qrow'),id=+r.dataset.id;lOpen.has(id)?lOpen.delete(id):lOpen.add(id);b.textContent=lOpen.has(id)?'■':'□';r.querySelector('.ans').hidden=!lOpen.has(id);vib(12)};
+$('lSwap').onclick=swapAll;
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 $('bFlip').onclick=flip;$('scene').onclick=flip;$('bOk').onclick=()=>mark(true);$('bNg').onclick=()=>mark(false);
 $('tOk').onclick=()=>{tab='ok';renderRes()};$('tNg').onclick=()=>{tab='ng';renderRes()};
@@ -150,16 +181,56 @@ const asc=a=>a.slice().sort((x,y)=>x-y);
 $('bRSeq').onclick=()=>startStudy(asc(run.ng));$('bRRnd').onclick=()=>startStudy(shuf(run.ng));
 $('bASeq').onclick=()=>startStudy(asc(run.ids));$('bARnd').onclick=()=>startStudy(shuf(run.ids));
 $('bExp').onclick=()=>{const rows=[['#誤答 '+new Date().toLocaleDateString('ja-JP')]];run.ng.forEach(i=>{const c=deck.cards[i];rows.push(c.m?[c.q,c.a,c.m]:[c.q,c.a])});download('wrong.csv',toCSV(rows))};
-document.addEventListener('keydown',e=>{if(!$('study').open||$('result').open||$('dlg').open)return;
+document.addEventListener('keydown',e=>{if(!$('study').open||$('result').open||$('dlg').open||$('cfm').open)return;
+  if(e.target.id=='ans'){if(e.key=='Enter'){e.preventDefault();flip()}return}
   if(e.key==' '||e.key=='Enter'){e.preventDefault();flip()}else if(e.key=='ArrowRight')mark(true);else if(e.key=='ArrowLeft')mark(false)});
 let tx=null;$('scene').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('scene').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>70&&run&&run.fl){e.preventDefault();mark(dx>0)}});
 
 $('result').addEventListener('cancel',e=>e.preventDefault());
+function addLib(name,text){let l=S.get('lib',[]);const o=l.find(x=>x.name==name);l=l.filter(x=>x.name!=name);l.unshift({name,text,fav:o?o.fav:false});let n=0;S.set('lib',l.filter(x=>x.fav||++n<=10))}
+function renderMenu(){const l=S.get('lib',[]),sv=S.get('saved',[]);
+  const row=x=>`<div class="row"><span>${esc(x.name)}</span><span><button class="lk" data-o="${esc(x.name)}">開く</button><button class="lk" data-f="${esc(x.name)}" aria-label="お気に入り">${x.fav?'★':'☆'}</button><button class="lk" data-x="${esc(x.name)}" aria-label="削除">✕</button></span></div>`;
+  $('mFav').innerHTML=l.filter(x=>x.fav).map(row).join('')||'<small>なし</small>';
+  $('mRec').innerHTML=l.filter(x=>!x.fav).map(row).join('')||'<small>なし</small>';
+  $('mSav').innerHTML=sv.map((x,i)=>`<div class="row"><span>${esc(x.title)}<small> 残り${x.ids.length-x.pos}問</small></span><span><button class="lk" data-r="${i}">再開</button><button class="lk" data-d="${i}" aria-label="削除">✕</button></span></div>`).join('')||'<small>なし</small>'}
+$('bMenu').onclick=()=>{renderMenu();renderDist();$('menu').showModal()};$('mClose').onclick=()=>$('menu').close();
+$('menu').onclick=e=>{const d=e.target.dataset,l=S.get('lib',[]),sv=S.get('saved',[]);
+  if(d.o){const x=l.find(y=>y.name==d.o);setDeck(build(x.name,x.text),x.text);$('menu').close()}
+  else if(d.f){const x=l.find(y=>y.name==d.f);x.fav=!x.fav;S.set('lib',l);renderMenu()}
+  else if(d.x){S.set('lib',l.filter(y=>y.name!=d.x));renderMenu()}
+  else if(d.r!=null){const x=sv.splice(+d.r,1)[0];S.set('saved',sv);setDeck(build(x.deckName,x.text),x.text);run={ids:x.ids,pos:x.pos,ok:x.ok,ng:x.ng,swap:x.swap,fl:false,log:[],t0:Date.now()};$('menu').close();show('study');renderCard()}
+  else if(d.d!=null){sv.splice(+d.d,1);S.set('saved',sv);renderMenu()}
+  else if(d.c!=null){const x=JSON.parse($('mDist').dataset.l)[+d.c];fetch('csv/'+x.file,{cache:'no-cache'}).then(r=>r.text()).then(t=>{setDeck(build(x.name+'.csv',t),t);$('menu').close()})}};
+$('oN').oninput=e=>{opt.cnt=Math.max(0,+e.target.value||0);S.set('opt',opt)};
+$('nM').onclick=()=>{opt.cnt=Math.max(0,opt.cnt-1);S.set('opt',opt);$('oN').value=opt.cnt};
+$('nP').onclick=()=>{opt.cnt++;S.set('opt',opt);$('oN').value=opt.cnt};
+$('bHint').onclick=()=>{$('fh').textContent=deck.cards[run.ids[run.pos]].m};
+$('bUndo').onclick=()=>{if(!run||!run.log||!run.log.length)return;const l=run.log.pop(),h=hist(),q=deck.cards[l.id].q;(l.ok?run.ok:run.ng).pop();if(l.p)h[q]=l.p;else delete h[q];S.set('hist:'+deck.name,h);run.pos--;renderCard()};
+$('bStop').onclick=()=>{$('svName').value='';$('cfm').showModal()};$('cBack').onclick=()=>$('cfm').close();
+$('cStop').onclick=()=>{$('cfm').close();run.ids=run.ids.slice(0,run.pos);if(!run.ids.length)return show('home');finish()};
+$('cSave').onclick=()=>{const sv=S.get('saved',[]);sv.unshift({title:$('svName').value.trim()||deck.name+' '+new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'}),deckName:deck.name,text:S.get('deck').text,ids:run.ids,pos:run.pos,ok:run.ok,ng:run.ng,swap:run.swap});S.set('saved',sv);S.set('prog',null);$('cfm').close();show('home');alert('「後でやる」に保存しました（☰メニューから再開できます）')};
+function renderStars(){const n=stars()[deck.cards[run.ids[run.pos]].q]||0;$('stars').innerHTML=[1,2,3,4,5].map(i=>`<button data-n="${i}" aria-label="重要度${i}">${i<=n?'★':'☆'}</button>`).join('')}
+$('stars').onclick=e=>{const i=+e.target.dataset.n;if(!i)return;const q=deck.cards[run.ids[run.pos]].q,m=stars();if(m[q]==i)delete m[q];else m[q]=i;S.set('star:'+deck.name,m);renderStars();vib(10)};
+$('im').onclick=e=>{if(e.target.dataset.i){opt.input=e.target.dataset.i;S.set('opt',opt);renderHome()}};
+$('stf').onclick=e=>{const n=e.target.dataset.s;if(n==null)return;const i=opt.stars.indexOf(+n);if(i>=0){if(opt.stars.length>1)opt.stars.splice(i,1)}else opt.stars.push(+n);S.set('opt',opt);renderHome()};
+const cv=$('pen'),cx=cv.getContext('2d');let drw=false;
+function penSize(){const r=cv.getBoundingClientRect(),d=devicePixelRatio||1;cv.width=r.width*d;cv.height=140*d;cx.scale(d,d);cx.lineWidth=3;cx.lineCap=cx.lineJoin='round';cx.strokeStyle=getComputedStyle(cv).color}
+const pp=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+cv.onpointerdown=e=>{drw=true;cv.setPointerCapture(e.pointerId);const[x,y]=pp(e);cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+.1,y+.1);cx.stroke()};
+cv.onpointermove=e=>{if(!drw)return;const[x,y]=pp(e);cx.lineTo(x,y);cx.stroke()};cv.onpointerup=cv.onpointercancel=()=>drw=false;
+$('penClr').onclick=penSize;
+$('lRed').onclick=()=>{red=!red;$('lRed').textContent='赤シート '+(red?'ON':'OFF');renderList();if(red){$('sheet').style.top=$('sh').style.top='80px'}};
+$('sh').onpointerdown=e=>{e.preventDefault();$('sh').setPointerCapture(e.pointerId);$('sh').dataset.d=1};
+$('sh').onpointermove=e=>{if(!$('sh').dataset.d)return;const r=$('lWrap').getBoundingClientRect(),y=Math.max(0,Math.min(r.height-44,e.clientY-r.top-22));$('sheet').style.top=$('sh').style.top=y+'px'};
+$('sh').onpointerup=()=>{delete $('sh').dataset.d};
+async function renderDist(){const el=$('mDist');try{const r=await fetch('csv/list.json',{cache:'no-cache'});if(!r.ok)throw 0;const l=await r.json();el.dataset.l=JSON.stringify(l);el.innerHTML=l.map((x,i)=>`<div class="row"><span>${esc(x.name)}</span><button class="lk" data-c="${i}">開く</button></div>`).join('')||'<small>なし</small>'}catch(e){el.innerHTML='<small>公開サイトでのみ表示されます</small>'}}
+$('bkOut').onclick=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('ankicho:'))o[k]=localStorage.getItem(k)}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download='ankicho-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove()};
+$('bkIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text());if(!confirm('現在のデータを、バックアップの内容で上書きします。よろしいですか？'))return;Object.entries(o).forEach(([k,v])=>k.startsWith('ankicho:')&&localStorage.setItem(k,v));location.reload()}catch(er){alert('読み込めませんでした')}};
 // 設定
-const pal={pink:340,peach:22,lemon:48,mint:150,sky:205,lavender:265};
+const pal={pink:'hsl(340 75% 80%)',peach:'hsl(22 75% 80%)',lemon:'hsl(48 75% 80%)',mint:'hsl(150 75% 80%)',sky:'hsl(205 75% 80%)',lavender:'hsl(265 75% 80%)',white:'#fff',black:'#222'};
 function renderSet(){const t=S.get('theme',{p:'lavender',m:'auto'});$('mode').value=t.m;
-  $('sw').innerHTML=Object.entries(pal).map(([k,h])=>`<button style="--c:${h}" data-p="${k}" class="${t.p==k?'on':''}" aria-label="${k}"></button>`).join('')}
+  $('sw').innerHTML=Object.entries(pal).map(([k,h])=>`<button style="background:${h};box-shadow:inset 0 0 0 1px #8886" data-p="${k}" class="${t.p==k?'on':''}" aria-label="${k}"></button>`).join('')}
 $('bSet').onclick=()=>{renderSet();$('dlg').showModal()};$('dClose').onclick=()=>$('dlg').close();
 $('sw').onclick=e=>{const p=e.target.dataset.p;if(!p)return;const t=S.get('theme',{p:'lavender',m:'auto'});t.p=p;S.set('theme',t);applyTheme();renderSet()};
 $('mode').onchange=e=>{const t=S.get('theme',{p:'lavender',m:'auto'});t.m=e.target.value;S.set('theme',t);applyTheme()};
