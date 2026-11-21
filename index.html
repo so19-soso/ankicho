@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>暗記帳</title>
+<title>シンプル暗記帳</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#c9b8f5">
@@ -11,34 +11,38 @@
 </head>
 <body>
 <div class="wrap">
-<div class="bar"><h1><img src="icon.svg" width="32" height="32" alt="">暗記帳</h1><span><button class="ic" id="bMenu" aria-label="保存データ">☰</button> <button class="ic" id="bSet" aria-label="設定">⚙</button></span></div>
+<div class="bar"><h1><img src="icon.svg" width="32" height="32" alt="">シンプル暗記帳</h1><span><button class="ic" id="bMenu" aria-label="保存データ">☰</button> <button class="ic" id="bSet" aria-label="設定">⚙</button></span></div>
 
 <section id="home" class="wrap" style="padding:0">
-  <div class="card"><h3>① 読み込む</h3>
-    <div class="drop"><label>📄 CSVを選ぶ<input type="file" id="file" accept=".csv,.txt" hidden></label><div id="deckInfo" style="margin-top:8px;font-size:14px;color:var(--sub)">未読み込み</div></div></div>
-  <div class="card"><h3>② 設定</h3>
-    <div class="lbl">セクション</div><div id="secs"></div>
+  <div class="card"><h3>CSV 読み込み</h3>
+    <div class="drop"><label>📄 CSVを開く<input type="file" id="file" accept=".csv,.txt" hidden></label><div id="deckInfo" style="margin-top:8px;font-size:14px;color:var(--sub)">CSVを選ぶか、サンプルで試してください</div></div>
+    <button class="btn ghost" id="bSample" style="margin-top:8px">サンプルで試す</button></div>
+  <div class="card"><h3>設定</h3>
+    <div class="lbl">セクション（出題する範囲）</div><div id="secs"></div>
     <div><button class="lk" id="selAll">全選択</button><button class="lk" id="selNone">全解除</button></div>
     <div class="lbl">モード</div>
-    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧（□■）</button></div>
+    <div class="seg" id="md"><button data-m="card">フラッシュカード</button><button data-m="list">一覧</button></div>
     <div class="lbl">出題順</div>
     <div class="seg" id="ord"><button data-o="seq">順番どおり</button><button data-o="rnd">ランダム</button></div>
     <label class="row rnd"><span>セクション内だけシャッフル</span><input type="checkbox" class="tg" id="oInSec"></label>
-    <label class="row"><span>問題と答えを入れ替える</span><input type="checkbox" class="tg" id="oSwap"></label>
-    <label class="row cardonly"><span>カードをめくる演出</span><input type="checkbox" class="tg" id="oFlip"></label>
-    <label class="row"><span>振動（めくる／正誤／答え表示）</span><input type="checkbox" class="tg" id="oVib"></label>
     <div class="row rnd"><span>出題数（0で全問）</span><span class="cnt"><button id="nM" aria-label="減らす">−</button><input type="number" id="oN" min="0" inputmode="numeric"><button id="nP" aria-label="増やす">＋</button></span></div>
-    <label class="row"><span>苦手問題だけ出題（<span id="weakN">0</span>問）</span><input type="checkbox" class="tg" id="oWeak"></label>
-    <div class="lbl cardonly">回答欄（自分の答えを書く。自動判定はしません）</div>
-    <div class="seg cardonly" id="im"><button data-i="off">なし</button><button data-i="key">キーボード</button><button data-i="pen">手書き</button></div>
-    <div class="lbl">出題する重要度（★）</div><div class="seg" id="stf"></div></div>
-  <div class="card"><h3>③ スタート</h3>
+    <details class="adv"><summary>詳細設定</summary>
+      <label class="row"><span>問題と答えを入れ替える</span><input type="checkbox" class="tg" id="oSwap"></label>
+      <label class="row cardonly"><span>カードをめくる演出</span><input type="checkbox" class="tg" id="oFlip"></label>
+      <label class="row"><span>振動（めくる／正誤／答え表示）</span><input type="checkbox" class="tg" id="oVib"></label>
+      <label class="row"><span>苦手問題だけ出題（<span id="weakN">0</span>問）</span><input type="checkbox" class="tg" id="oWeak"></label>
+      <div class="lbl cardonly">回答欄（自分の答えを書く）</div>
+      <div class="seg cardonly" id="im"><button data-i="off">なし</button><button data-i="key">キーボード</button><button data-i="pen">手書き</button></div>
+      <label class="row cardonly" id="autoRow"><span>自動採点（キーボード入力のときのみ）</span><input type="checkbox" class="tg" id="oAuto"></label>
+      <div class="lbl">出題する重要度マーカー（★）</div><div class="seg" id="stf"></div>
+    </details></div>
+  <div class="card startcard"><h3>スタート</h3>
     <button class="btn ghost" id="bResume" hidden style="margin-bottom:8px"></button>
     <button class="btn" id="bStart">スタート</button></div>
 </section>
 
 <dialog id="study" class="full"><div class="in">
-  <div class="bar2"><button class="lk" data-go="home">← 設定</button><span><button class="lk" id="bUndo">↩ 1つ戻す</button><button class="lk" id="bStop">中断</button><small id="pg"></small></span></div>
+  <div class="bar2"><button class="lk" data-go="home">← ホーム</button><span><button class="lk" id="bUndo">↩ 1つ戻す</button><button class="lk" id="bStop">中断</button><small id="pg"></small></span></div>
   <div class="prog"><i id="pb"></i></div>
   <div class="scene" id="scene"><div class="fc" id="fc">
     <div class="face"><span class="tag">問題</span><div class="big" id="fq"></div><small id="fh" style="color:var(--sub)"></small></div>
@@ -48,8 +52,9 @@
     <div id="penw" hidden><canvas id="pen" style="width:100%;height:140px;border:1px solid var(--ln);border-radius:12px;background:var(--sf);touch-action:none;display:block"></canvas><button class="lk" id="penClr">書き直す</button></div></div>
   <button class="btn" id="bFlip">答えを見る</button>
   <button class="lk" id="bHint" hidden>💡 ヒントを見る</button>
+  <p id="av" hidden></p>
   <div class="btns" id="bJudge" hidden><button class="btn ng" id="bNg">✕ 不正解</button><button class="btn ok" id="bOk">○ 正解</button></div>
-  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解（答えを見たあと左右スワイプも可）</p>
+  <p class="hint">Space：めくる ／ ←：不正解 ／ →：正解（左右スワイプ対応）</p>
 </div></dialog>
 
 <dialog id="result" class="full"><div class="in">
@@ -61,22 +66,22 @@
   <div class="lbl">今回の全問をもう一度</div>
   <div class="btns"><button class="btn" id="bASeq">順番どおり</button><button class="btn ghost" id="bARnd">シャッフル</button></div>
   <button class="btn ghost" id="bExp">誤答をCSVで書き出し</button>
-  <button class="btn ghost" data-go="home">はじめから（設定に戻る）</button>
+  <button class="btn ghost" data-go="home">ホームに戻る</button>
 </div></dialog>
 
 <dialog id="list" class="full"><div class="in">
-  <div class="bar2"><button class="lk" data-go="home">← 設定</button><span><button class="lk" id="lRed">赤シート OFF</button><button class="lk" id="lSwap">全部入れ替え</button><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
+  <div class="bar2"><button class="lk" data-go="home">← ホーム</button><span><button class="lk" id="lRed">赤シート OFF</button><button class="lk" id="lSwap">全部入れ替え</button><button class="lk" id="lHide">全部隠す</button><button class="lk" id="lShow">全部表示</button></span></div>
   <div id="lWrap" style="position:relative"><div class="card" id="lBody"></div><div id="sheet" hidden></div><button id="sh" hidden aria-label="赤シートを動かす">⇕</button></div>
   <button class="btn" data-go="home">完了（設定に戻る）</button>
 </div></dialog>
 
-<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a></footer>
+<footer><a href="csv-guide.html">CSVの書き方</a> ｜ <a href="editor.html">CSV作成ツール</a><br>Produced by Claude and Soso | Powered by GitHub.io | Super Thanks Claude<hr><a href="https://so19-soso.github.io/ankicho/">暗記帳</a> © 2026 by So19-soso is licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nd.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></footer>
 </div>
 
 <dialog id="menu"><h2>保存データ</h2>
   <div class="lbl">★ お気に入りCSV</div><div id="mFav"></div>
-  <div class="lbl">履歴（最近10件）</div><div id="mRec"></div>
-  <div class="lbl">後でやる（中断して保存）</div><div id="mSav"></div>
+  <div class="lbl">履歴</div><div id="mRec"></div>
+  <div class="lbl">後でやる</div><div id="mSav"></div>
   <div class="lbl">配布CSV（csv/フォルダ）</div><div id="mDist"></div>
   <div class="lbl">データ保護</div><div class="btns"><button class="btn ghost" id="bkOut">バックアップ書き出し</button><label class="btn ghost">復元<input type="file" id="bkIn" accept=".json" hidden></label></div>
   <div style="margin-top:12px"><button class="btn" id="mClose">閉じる</button></div></dialog>
@@ -101,7 +106,7 @@ const fmt=t=>esc(t).replace(/\*_(.+?)_\*/g,'<u>$1</u>').replace(/\*\*(.+?)\*\*/g
 const vib=p=>{if(opt.vib)try{navigator.vibrate(p)}catch(e){}};
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 let deck={name:'',cards:[],secs:[]},sel=new Set(),run=null,tab='ng';
-let opt=Object.assign({o:'seq',mode:'card',weak:false,inSec:true,swap:false,flip:true,cnt:10,vib:true,input:'off',stars:[0,1,2,3,4,5]},S.get('opt',{}));
+let opt=Object.assign({o:'seq',mode:'card',weak:false,inSec:true,swap:false,flip:true,cnt:10,vib:true,auto:false,input:'off',stars:[0,1,2,3,4,5]},S.get('opt',{}));
 
 function build(name,text){const secs=[],cards=[];let cur=-1;
   for(const r of parseCSV(text)){const a=(r[0]||'').trim();if(!a&&!(r[1]||'').trim())continue;
@@ -118,10 +123,10 @@ function show(id){
 const hist=()=>S.get('hist:'+deck.name,{});
 const stars=()=>S.get('star:'+deck.name,{});
 function renderHome(){
-  $('deckInfo').textContent=deck.cards.length?`${deck.name}（${deck.cards.length}問）`:'未読み込み';
+  $('deckInfo').textContent=deck.cards.length?`${deck.name}（${deck.cards.length}問）`:'CSVを選ぶか、サンプルで試してください';
   $('secs').innerHTML=deck.secs.map((n,i)=>`<label class="row"><span><input type="checkbox" data-s="${i}" ${sel.has(i)?'checked':''}>${esc(n)}</span><small>${deck.cards.filter(c=>c.s==i).length}問</small></label>`).join('')||'<small>CSVを読み込んでください</small>';
   document.querySelectorAll('#ord button').forEach(b=>b.classList.toggle('on',b.dataset.o==opt.o));
-  document.querySelectorAll('#md button').forEach(b=>b.classList.toggle('on',b.dataset.m==opt.mode));$('oWeak').checked=opt.weak;$('oInSec').checked=opt.inSec;$('oVib').checked=opt.vib;$('oN').value=opt.cnt;document.querySelectorAll('.cardonly').forEach(e=>e.hidden=opt.mode=='list');document.querySelectorAll('.rnd').forEach(e=>e.hidden=opt.o!='rnd');
+  document.querySelectorAll('#md button').forEach(b=>b.classList.toggle('on',b.dataset.m==opt.mode));$('oWeak').checked=opt.weak;$('oInSec').checked=opt.inSec;$('oVib').checked=opt.vib;$('oAuto').checked=opt.auto;$('oAuto').disabled=opt.input!='key';$('autoRow').classList.toggle('off',opt.input!='key');$('bStart').disabled=!deck.cards.length;$('oN').value=opt.cnt;document.querySelectorAll('.cardonly').forEach(e=>e.hidden=opt.mode=='list');document.querySelectorAll('.rnd').forEach(e=>e.hidden=opt.o!='rnd');
   document.querySelectorAll('#im button').forEach(b=>b.classList.toggle('on',b.dataset.i==opt.input));
   $('stf').innerHTML=[0,1,2,3,4,5].map(n=>`<button data-s="${n}" class="${opt.stars.includes(n)?'on':''}">${n?'★'+n:'未'}</button>`).join('');$('oSwap').checked=opt.swap;$('oFlip').checked=opt.flip;
   const h=hist();$('weakN').textContent=deck.cards.filter(c=>h[c.q]>0).length;
@@ -139,9 +144,16 @@ function startStudy(ids){if(!ids.length)return alert('出題できる問題が�
 function renderCard(){const c=deck.cards[run.ids[run.pos]],fc=$('fc');
   run.fl=false;fc.classList.add('noanim');fc.classList.remove('flipped');void fc.offsetWidth;if(opt.flip)fc.classList.remove('noanim');
   $('fq').innerHTML=fmt(run.swap?c.a:c.q);$('fa').innerHTML=fmt(run.swap?c.q:c.a);$('fm').innerHTML=fmt(c.m);$('fh').textContent='';
-  $('pg').textContent=`${run.pos+1} / ${run.ids.length}`;$('pb').style.width=run.pos/run.ids.length*100+'%';renderStars();$('inp').hidden=opt.input=='off';$('ans').hidden=opt.input!='key';$('penw').hidden=opt.input!='pen';$('ans').value='';if(opt.input=='pen')penSize();btns()}
+  $('pg').textContent=`${run.pos+1} / ${run.ids.length}`;$('pb').style.width=run.pos/run.ids.length*100+'%';renderStars();$('inp').hidden=opt.input=='off';$('ans').hidden=opt.input!='key';$('penw').hidden=opt.input!='pen';$('ans').value='';if(opt.input=='pen')penSize();btns();showAuto()}
 function btns(){$('bHint').hidden=run.fl||!deck.cards[run.ids[run.pos]].m;$('bFlip').hidden=run.fl;$('bJudge').hidden=!run.fl}
-function flip(){if(!run)return;run.fl=!run.fl;$('fc').classList.toggle('flipped',run.fl);vib(12);btns()}
+const nz=t=>t.normalize('NFKC').toLowerCase().replace(/\s/g,'').replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96));
+const autoOn=()=>opt.input=='key'&&opt.auto;
+function judgeAuto(){const c=deck.cards[run.ids[run.pos]],u=nz($('ans').value);if(!u)return null;return (run.swap?c.q:c.a).replace(/\*_|_\*|\*\*/g,'').split('/').some(x=>nz(x)===u)}
+function showAuto(){const v=$('av');run.av=null;$('bOk').classList.remove('sug');$('bNg').classList.remove('sug');
+  if(!(run.fl&&autoOn())){v.hidden=true;return}
+  const r=judgeAuto();run.av=r;if(r===null){v.hidden=true;return}
+  v.hidden=false;v.textContent=r?'自動採点：○ 正解です（Enterで確定）':'自動採点：✕ 違うようです（Enterで確定）';$(r?'bOk':'bNg').classList.add('sug')}
+function flip(){if(!run)return;run.fl=!run.fl;$('fc').classList.toggle('flipped',run.fl);vib(12);btns();showAuto()}
 function mark(ok){if(!run||!run.fl)return;const id=run.ids[run.pos],q=deck.cards[id].q,h=hist();
   (ok?run.ok:run.ng).push(id);(run.log=run.log||[]).push({id,ok,p:h[q]||0});vib(ok?25:[30,50,30]);
   if(ok){if(h[q]>0){h[q]--;if(!h[q])delete h[q]}}else h[q]=(h[q]||0)+1;
@@ -166,7 +178,7 @@ $('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=awai
 $('secs').onchange=e=>{const i=+e.target.dataset.s;e.target.checked?sel.add(i):sel.delete(i)};
 $('selAll').onclick=()=>{sel=new Set(deck.secs.keys());renderHome()};$('selNone').onclick=()=>{sel.clear();renderHome()};
 $('ord').onclick=e=>{if(e.target.dataset.o){opt.o=e.target.dataset.o;S.set('opt',opt);renderHome()}};
-[['oVib','vib'],['oWeak','weak'],['oInSec','inSec'],['oSwap','swap'],['oFlip','flip']].forEach(([id,k])=>$(id).onchange=e=>{opt[k]=e.target.checked;S.set('opt',opt)});
+[['oAuto','auto'],['oVib','vib'],['oWeak','weak'],['oInSec','inSec'],['oSwap','swap'],['oFlip','flip']].forEach(([id,k])=>$(id).onchange=e=>{opt[k]=e.target.checked;S.set('opt',opt)});
 $('bStart').onclick=()=>{const ids=makeIds();if(!ids.length)return alert(opt.weak?'苦手問題がありません':'出題できる問題がありません');
   if(opt.mode=='list'){lAll=eligible();lIds=ids;lOpen=new Set();red=false;$('lRed').textContent='赤シート OFF';show('list');renderList()}else startStudy(ids)};
 $('md').onclick=e=>{if(e.target.dataset.m){opt.mode=e.target.dataset.m;S.set('opt',opt);renderHome()}};
@@ -182,8 +194,8 @@ $('bRSeq').onclick=()=>startStudy(asc(run.ng));$('bRRnd').onclick=()=>startStudy
 $('bASeq').onclick=()=>startStudy(asc(run.ids));$('bARnd').onclick=()=>startStudy(shuf(run.ids));
 $('bExp').onclick=()=>{const rows=[['#誤答 '+new Date().toLocaleDateString('ja-JP')]];run.ng.forEach(i=>{const c=deck.cards[i];rows.push(c.m?[c.q,c.a,c.m]:[c.q,c.a])});download('wrong.csv',toCSV(rows))};
 document.addEventListener('keydown',e=>{if(!$('study').open||$('result').open||$('dlg').open||$('cfm').open)return;
-  if(e.target.id=='ans'){if(e.key=='Enter'){e.preventDefault();flip()}return}
-  if(e.key==' '||e.key=='Enter'){e.preventDefault();flip()}else if(e.key=='ArrowRight')mark(true);else if(e.key=='ArrowLeft')mark(false)});
+  if(e.target.id=='ans'){if(e.key=='Enter'){e.preventDefault();if(run.fl&&autoOn()&&run.av!=null)mark(run.av);else flip()}return}
+  if(e.key=='Enter'&&run.fl&&autoOn()&&run.av!=null){e.preventDefault();mark(run.av)}else if(e.key==' '||e.key=='Enter'){e.preventDefault();flip()}else if(e.key=='ArrowRight')mark(true);else if(e.key=='ArrowLeft')mark(false)});
 let tx=null;$('scene').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
 $('scene').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>70&&run&&run.fl){e.preventDefault();mark(dx>0)}});
 
@@ -227,6 +239,7 @@ $('sh').onpointerup=()=>{delete $('sh').dataset.d};
 async function renderDist(){const el=$('mDist');try{const r=await fetch('csv/list.json',{cache:'no-cache'});if(!r.ok)throw 0;const l=await r.json();el.dataset.l=JSON.stringify(l);el.innerHTML=l.map((x,i)=>`<div class="row"><span>${esc(x.name)}</span><button class="lk" data-c="${i}">開く</button></div>`).join('')||'<small>なし</small>'}catch(e){el.innerHTML='<small>公開サイトでのみ表示されます</small>'}}
 $('bkOut').onclick=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('ankicho:'))o[k]=localStorage.getItem(k)}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download='ankicho-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove()};
 $('bkIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const o=JSON.parse(await f.text());if(!confirm('現在のデータを、バックアップの内容で上書きします。よろしいですか？'))return;Object.entries(o).forEach(([k,v])=>k.startsWith('ankicho:')&&localStorage.setItem(k,v));location.reload()}catch(er){alert('読み込めませんでした')}};
+$('bSample').onclick=()=>fetch('csv/sample.csv',{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.text()}).then(t=>setDeck(build('sample.csv',t),t)).catch(()=>alert('サンプルを読み込めませんでした（公開サイトで使えます）'));
 // 設定
 const pal={pink:'hsl(340 75% 80%)',peach:'hsl(22 75% 80%)',lemon:'hsl(48 75% 80%)',mint:'hsl(150 75% 80%)',sky:'hsl(205 75% 80%)',lavender:'hsl(265 75% 80%)',white:'#fff',black:'#222'};
 function renderSet(){const t=S.get('theme',{p:'lavender',m:'auto'});$('mode').value=t.m;

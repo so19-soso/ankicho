@@ -87,3 +87,12 @@ input.tg:checked{background:var(--lk)}input.tg:checked::after{transform:translat
 .erow.dup{outline:2px solid #e55;border-radius:8px}
 #prev{margin-top:8px;font-size:15px;min-height:1.6em}
 @media(max-width:640px){.erow.c .ebt{grid-column:2;grid-row:1/4;flex-direction:column}}
+.card h3{font-size:15px;color:var(--ink)}
+.btn{min-height:48px}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btns .btn{min-height:56px;font-size:17px}.seg button{min-height:40px}
+:focus-visible{outline:3px solid var(--lk);outline-offset:2px}
+.startcard{position:sticky;bottom:8px;z-index:3;box-shadow:0 8px 24px hsl(var(--h) 40% 30%/.28)}
+details.adv{margin-top:10px;border-top:1px solid var(--ln);padding-top:4px}
+details.adv summary{cursor:pointer;font-weight:700;color:var(--lk);padding:10px 0}
+.row.off{opacity:.45}
+#av{text-align:center;font-weight:700;margin:0}.btn.sug{outline:4px solid var(--ink);outline-offset:2px}
