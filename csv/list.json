@@ -6,5 +6,9 @@
  {
     "name":"サンプル 算数 四則演算",
     "file": "math_shisokuenzan.csv"
+ },
+ {
+   "name":"シス単 2学期期末範囲",
+   "file":"English_shisutan_2kimatsu.csv"
  }
 ]
