@@ -10,5 +10,9 @@
  {
    "name":"シス単 2学期期末範囲",
    "file":"English_shisutan_2kimatsu.csv"
+ },
+ {
+   "name":"漢字 2学期期末範囲",
+   "file":"Kanji_2600_2kimatsu.csv"
  }
 ]
